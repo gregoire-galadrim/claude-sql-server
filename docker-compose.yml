@@ -1,0 +1,47 @@
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: formation-sqlserver
+    ports:
+      - "1433:1433"
+    environment:
+      # Identifiants (volontairement en clair dans ce fichier de formation)
+      # Connexion : user = sa, password = Str0ng!Passw0rd, base applicative = test
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "Str0ng!Passw0rd"
+      MSSQL_PID: "Developer"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          '/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "$$MSSQL_SA_PASSWORD" -C -Q "SELECT 1" || exit 1',
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+volumes:
+  sqlserver_data:
+
+# --------------------------------------------------------------------------
+# Démarrage :   docker compose up -d
+#
+# Appliquer les migrations puis le seed (sqlcmd est embarqué dans le conteneur,
+# pas besoin de l'installer en local) :
+#
+#   docker compose exec -T sqlserver /opt/mssql-tools18/bin/sqlcmd \
+#     -S localhost -U sa -P 'Str0ng!Passw0rd' -C -i /dev/stdin < sqlserver/migrations/000_create_database.sql
+#
+#   for f in sqlserver/migrations/0[0-1]*.sql; do
+#     docker compose exec -T sqlserver /opt/mssql-tools18/bin/sqlcmd \
+#       -S localhost -U sa -P 'Str0ng!Passw0rd' -C -d test -i /dev/stdin < "$f"
+#   done
+#
+#   docker compose exec -T sqlserver /opt/mssql-tools18/bin/sqlcmd \
+#     -S localhost -U sa -P 'Str0ng!Passw0rd' -C -d test -i /dev/stdin < sqlserver/seed.sql
+#
+# (-C accepte le certificat auto-signé du serveur ; -d test cible la base applicative.)
+# --------------------------------------------------------------------------

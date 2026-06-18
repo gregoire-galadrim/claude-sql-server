@@ -1,0 +1,2 @@
+-- Aucune extension requise pour SQL Server.
+-- Ce fichier est conservé pour maintenir la numérotation des migrations.
