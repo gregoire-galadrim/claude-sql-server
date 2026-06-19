@@ -1,0 +1,50 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: formation-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      # Identifiants (volontairement en clair dans ce fichier de formation)
+      # Connexion : user = postgres, password = Str0ng!Passw0rd, base applicative = test
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "Str0ng!Passw0rd"
+      POSTGRES_DB: test
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d test"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+volumes:
+  postgres_data:
+
+# --------------------------------------------------------------------------
+# Démarrage :   docker compose up -d
+#
+# La base `test` est créée automatiquement via POSTGRES_DB.
+#
+# Appliquer les migrations puis le seed (psql est embarqué dans le conteneur,
+# pas besoin de l'installer en local) :
+#
+#   for f in migrations/0[0-1]*.sql; do
+#     docker compose exec -T postgres psql -U postgres -d test \
+#       -f /dev/stdin < "$f"
+#   done
+#
+#   docker compose exec -T postgres psql -U postgres -d test \
+#     -f /dev/stdin < seed.sql
+#
+# Ou en une seule commande avec la migration consolidée :
+#
+#   docker compose exec -T postgres psql -U postgres -d test \
+#     -f /dev/stdin < migration.sql
+#
+#   docker compose exec -T postgres psql -U postgres -d test \
+#     -f /dev/stdin < seed.sql
+#
+# (-d test cible la base applicative.)
+# --------------------------------------------------------------------------
