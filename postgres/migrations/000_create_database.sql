@@ -1,0 +1,7 @@
+-- Création de la base applicative.
+-- Avec Docker (POSTGRES_DB=test dans docker-compose.yml), cette étape est automatique.
+-- En dehors de Docker, exécutez depuis la base postgres :
+--
+--   psql -U postgres -c "CREATE DATABASE test;"
+--
+-- Ce fichier est conservé pour maintenir la cohérence de numérotation avec la version SQL Server.
